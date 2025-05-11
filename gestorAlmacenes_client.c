@@ -103,17 +103,214 @@ supermercado_1(char *host)
 #endif	 /* DEBUG */
 }
 
+#include "GestorAlmacenes.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-int
-main (int argc, char *argv[])
-{
-	char *host;
+void menu(CLIENT *clnt) {
+    int choice;
+    TDatosAlmacen datos;
+    TActProd actProd;
+    TBusProd busProd;
+    TObtProd obtProd;
+    TProducto producto;
+    char fichero[90];
+    int almacen;
+    int *result;
 
-	if (argc < 2) {
-		printf ("usage: %s server_host\n", argv[0]);
-		exit (1);
-	}
-	host = argv[1];
-	supermercado_1 (host);
-exit (0);
+    while (1) {
+        printf("\n----- Men� Almacenes -----\n");
+        printf("1.- Crear un almac�n vac�o.\n");
+        printf("2.- Abrir un fichero de almac�n.\n");
+        printf("3.- Cerrar un almac�n.\n");
+        printf("4.- Guardar Datos.\n");
+        printf("5.- Listar productos del almac�n.\n");
+        printf("6.- A�adir un producto.\n");
+        printf("7.- Actualizar un producto.\n");
+        printf("8.- Consultar un producto.\n");
+        printf("9.- Eliminar un producto.\n");
+        printf("0.- Salir.\n");
+        printf("Seleccione una opci�n: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:  // Crear almac�n
+                printf("Introduce los datos del nuevo almac�n:\n");
+                printf("Nombre: ");
+                scanf("%s", datos.Nombre);
+                printf("Direcci�n: ");
+                scanf("%s", datos.Direccion);
+                printf("Fichero: ");
+                scanf("%s", datos.Fichero);
+
+                result = crearalmacen_1(&datos, clnt);
+                if (*result == 1) {
+                    printf("Almac�n creado exitosamente.\n");
+                } else {
+                    printf("Error al crear el almac�n.\n");
+                }
+                break;
+
+            case 2:  // Abrir almac�n
+                printf("Introduce el nombre del fichero para abrir: ");
+                scanf("%s", fichero);
+                result = abriralmacen_1(fichero, clnt);
+                if (*result == 1) {
+                    printf("Almac�n abierto correctamente.\n");
+                } else {
+                    printf("Error al abrir el almac�n.\n");
+                }
+                break;
+
+            case 3:  // Cerrar almac�n
+                result = cerraralmacen_1(&almacen, clnt);
+                if (*result) {
+                    printf("Almac�n cerrado correctamente.\n");
+                } else {
+                    printf("Error al cerrar el almac�n.\n");
+                }
+                break;
+
+            case 4:  // Guardar Datos
+                result = guardaralmacen_1(&almacen, clnt);
+                if (*result) {
+                    printf("Datos guardados correctamente.\n");
+                } else {
+                    printf("Error al guardar los datos.\n");
+                }
+                break;
+
+            case 5:  // Listar productos del almac�n
+                printf("Productos listados.\n");
+                /*
+                printf("Obteniendo datos del almac�n...\n");
+
+                TDatosAlmacen *datosAlmacen = datosalmacen_1(&almacen, clnt);
+                if (datosAlmacen == NULL || datosAlmacen->Nombre[0] == '\0') {
+                    printf("Error: No se pudo obtener los datos del almac�n.\n");
+                    break;
+                }
+
+                printf("Listado del almac�n \"%s\" localizado en %s\n", datosAlmacen->Nombre, datosAlmacen->Direccion);
+                printf("*******************************************************************************\n");
+                printf("CODIGO\tNOMBRE\tPRECIO\tCANTIDAD\tFECHA CADUCIDAD\n");
+
+                int *numProductos = nproductos_1(&almacen, clnt);
+                if (*numProductos <= 0) {
+                    printf("No hay productos en el almac�n.\n");
+                    break;
+                }
+
+                for (int i = 0; i < *numProductos; i++) {
+                    TObtProd obtProd;
+                    obtProd.PosProducto = i;
+                    obtProd.Almacen = almacen;
+
+                    TProducto *producto = obtenerproducto_1(&obtProd, clnt);
+                    if (producto == NULL) {
+                        printf("Error al obtener el producto en la posici�n %d.\n", i);
+                        continue;
+                    }
+
+                    printf("%s\t%s\t%.2f\t%d\t%d/%d/%d\n",
+                           producto->CodProd,
+                           producto->NombreProd,
+                           producto->Precio,
+                           producto->Cantidad,
+                           producto->Caducidad.Dia,
+                           producto->Caducidad.Mes,
+                           producto->Caducidad.Anyo);
+                }
+                */
+                break;
+
+            case 6:  // A�adir producto
+                printf("Introduce el c�digo del producto: ");
+                scanf("%s", actProd.Producto.CodProd);
+                printf("Introduce la cantidad: ");
+                scanf("%d", &actProd.Producto.Cantidad);
+                actProd.Almacen = almacen;
+
+                result = anadirproducto_1(&actProd, clnt);
+                if (*result) {
+                    printf("Producto a�adido correctamente.\n");
+                } else {
+                    printf("Error al a�adir el producto.\n");
+                }
+                break;
+
+            case 7:  // Actualizar producto
+                printf("Introduce el c�digo del producto: ");
+                scanf("%s", actProd.Producto.CodProd);
+                printf("Introduce la nueva cantidad: ");
+                scanf("%d", &actProd.Producto.Cantidad);
+                actProd.Almacen = almacen;
+
+                result = actualizarproducto_1(&actProd, clnt);
+                if (*result) {
+                    printf("Producto actualizado correctamente.\n");
+                } else {
+                    printf("Error al actualizar el producto.\n");
+                }
+                break;
+
+            case 8:  // Consultar producto
+                printf("Introduce el c�digo del producto: ");
+                scanf("%s", busProd.CodProducto);
+                busProd.Almacen = almacen;
+
+                result = buscaproducto_1(&busProd, clnt);
+                if (*result == -1) {
+                    printf("Producto no encontrado.\n");
+                } else {
+                    printf("Producto encontrado.\n");
+                }
+                break;
+
+            case 9:  // Eliminar producto
+                printf("Introduce el c�digo del producto a eliminar: ");
+                scanf("%s", busProd.CodProducto);
+                busProd.Almacen = almacen;
+
+                result = eliminarproducto_1(&busProd, clnt);
+                if (*result) {
+                    printf("Producto eliminado correctamente.\n");
+                } else {
+                    printf("Error al eliminar el producto.\n");
+                }
+                break;
+
+            case 0:  // Salir
+                printf("Saliendo...\n");
+                exit(0);
+
+            default:
+                printf("Opci�n no v�lida.\n");
+        }
+    }
+}
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("Uso: %s servidor_host\n", argv[0]);
+        exit(1);
+    }
+
+    char *host = argv[1];
+    CLIENT *clnt;
+
+    // PUNTO 1: Crear el cliente y realizar el enlace con el servidor
+    clnt = clnt_create(host, SUPERMERCADO, SUPERMERCADO_VER, "udp");
+    if (clnt == NULL) {
+        clnt_pcreateerror(host);
+        exit(1);
+    }
+
+    // Llamar a la funci�n que maneja el men�
+    menu(clnt);
+
+    // Cerrar el enlace con el servidor
+    clnt_destroy(clnt);
+    return 0;
 }
