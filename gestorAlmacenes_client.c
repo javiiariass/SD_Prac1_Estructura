@@ -301,7 +301,7 @@ int main(int argc, char *argv[]) {
     CLIENT *clnt;
 
     // PUNTO 1: Crear el cliente y realizar el enlace con el servidor
-    clnt = clnt_create(host, SUPERMERCADO, SUPERMERCADO_VER, "udp");
+    clnt = clnt_create(host, SUPERMERCADO, SUPERMERCADO_VER, "tcp");
     if (clnt == NULL) {
         clnt_pcreateerror(host);
         exit(1);
